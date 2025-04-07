@@ -23,6 +23,7 @@ mdc: true
 # open graph
 # seoMeta:
 #  ogImage: https://cover.sli.dev
+lineNumbers: true
 ---
 
 # Rust Programming
@@ -44,7 +45,11 @@ layout: statement
 
 <br>
 
+<v-click>
+
 ## <span color="green">Safety</span> is the Absence of <span color="orange">Undefined Behavior☠️</span>
+
+</v-click>
 
 <style>
   h1 {
@@ -58,15 +63,24 @@ layout: statement
 # What is Undefined Behavior?
 Undefined Behavior (UB) is a term used in programming languages to describe a situation where the behavior of a program is unpredictable or not well-defined. This can occur when the program violates the language's rules or specifications, leading to unexpected results or crashes.
 It can happen due to various reasons, such as:
+
+<v-clicks>
+
 - Accessing memory that has already been freed
 - Dereferencing a null or invalid pointer
 - Using uninitialized variables
 - Buffer overflows
 
+</v-clicks>
+
+<v-click>
+
 ## What to do?
 😀In a safe programming language, errors are trapped as they happen.
 
 ☹️In an unsafe programming language, errors are not trapped. Rather, after executing an erroneous operation the program keeps going, but in a silently faulty way that may have observable consequences later on.
+</v-click>
+
 
 ---
 layout: statement
@@ -77,7 +91,11 @@ layout: statement
 
 <br>
 
+<v-click>
+
 ## ⚠️Also, it’s not that the execution is meaningful up to the point where undefined behavior happens: the bad effects can actually <span color="orange">precede</span> the undefined operation.
+
+</v-click>
 
 <!-- 
 If any step in a program’s execution has undefined behavior, then the entire execution is without meaning. This is important: it’s not that evaluating (1<<32) has an unpredictable result, but rather that the entire execution of a program that evaluates this expression is meaningless. Also, it’s not that the execution is meaningful up to the point where undefined behavior happens: the bad effects can actually precede the undefined operation. 
@@ -90,16 +108,24 @@ In summary: There’s nothing inherently bad about running with a ball in your h
 
 # Why Is Undefined Behavior Good?
 
-It simplifies the compiler’s job, making it possible to generate very efficient code in certain situations. 
+It simplifies the compiler’s job, making it possible to generate very efficient code in certain situations. For example:
 
-For example:
+<v-clicks>
+
 * High-performance array code doesn’t need to perform bounds checks.
 * When compiling a loop that increments a signed integer, the C compiler does not need to worry about the case where the variable overflows and becomes negative
 
+</v-clicks>
+
 <br>
+
+<v-click>
 
 # Why Is Undefined Behavior Bad?
 When programmers cannot be trusted to reliably avoid undefined behavior, we end up with programs that silently misbehave.
+
+</v-click>
+
 <!-- certain tight loops speed up by 30%-50% when the compiler is permitted to take advantage of the undefined nature of signed overflow. -->
 
 ---
@@ -120,16 +146,30 @@ int32_t unsafe_div_int32_t (int32_t a, int32_t b) {
 }
 ```
 
+<v-click>
+
 ## Why is this function unsafe?
-This function has a precondition; it **should only be called** with arguments that satisfy this predicate:
+
+</v-click>
+
+<v-click>
+This function has a precondition; it <strong>should only be called</strong> with arguments that satisfy this predicate:
 
 ```c
 (b != 0) && (!((a == INT32_MIN) && (b == -1)))
 ```
+</v-click>
 
+<div v-click>
 The compiler performs a case analysis:
-* Case 1: `(b != 0) && (!((a == INT32_MIN) && (b == -1)))` Behavior of `/` operator is defined, so Compiler is obligated to emit code computing `a / b`
-* Case 2: `(b == 0) || ((a == INT32_MIN) && (b == -1))` Behavior of `/` operator is undefined, so Compiler has no particular obligations
+</div>
+
+<v-clicks>
+
+- Case 1: `(b != 0) && (!((a == INT32_MIN) && (b == -1)))` Behavior of `/` operator is defined, so Compiler is obligated to emit code computing `a / b`
+- Case 2: `(b == 0) || ((a == INT32_MIN) && (b == -1))` Behavior of `/` operator is undefined, so Compiler has no particular obligations
+
+</v-clicks>
 
 <!-- Now the compiler writers ask themselves the question: What is the most efficient implementation of these two cases? Since Case 2 incurs no obligations, the simplest thing is to simply not consider it. The compiler can emit code only for Case 1.
 
@@ -144,16 +184,30 @@ int stupid (int a) {
   return (a+1) > a;
 }
 ```
+
+<v-click>
+
 The precondition for avoiding undefined behavior is:
 
 ```c
 (a != INT_MAX)
 ```
+</v-click>
+
+<v-click>
 
 Here the case analysis done by an optimizing C or C++ compiler is:
 
+</v-click>
+
+<v-clicks>
+
 - Case 1: `a != INT_MAX`. Behavior of `+` is defined: Computer is obligated to return `1`
 - Case 2: `a == INT_MAX`. Behavior of `+` is undefined: Compiler has no particular obligations
+
+</v-clicks>
+
+<v-click>
 
 ⚠️Again, Case 2 is degenerate and disappears from the compiler’s reasoning. Case 1 is all that matters. Thus, a good x86-64 compiler will emit:
 
@@ -162,6 +216,7 @@ stupid:
   movl $1, %eax
   ret
 ```
+</v-click>
 
 ---
 
@@ -178,15 +233,27 @@ static void __devexit agnx_pci_remove (struct pci_dev *pdev)
 ```
 The idiom here is to get a pointer to a device struct, test it for null, and then use it. 
 
-<span class="error-text">**☠️But there’s a problem!**</span> In this function, the pointer is dereferenced before the null check.
+<div v-click="1">
+<span class="error-text">☠️But there’s a problem!</span> In this function, the pointer is dereferenced before the null check.
+</div>
+
+<v-clicks at="2">
+
 * Case 1: `dev == NULL`
 “dev->priv” has undefined behavior: Compiler has no particular obligations
 * Case 2: `dev != NULL`
 Null pointer check won’t fail: Null pointer check is dead code and may be deleted
 
+</v-clicks>
+
+<v-click>
+
 As we can now easily see, neither case necessitates a null pointer check. *The check is removed*, potentially creating an exploitable security vulnerability.
 
 Read more about [Undefined Behavior.](https://blog.regehr.org/archives/213)
+
+</v-click>
+
 <style>
 .warning-text {
   color: #ff9900; /* Bright orange text */
@@ -205,3 +272,61 @@ Read more about [Undefined Behavior.](https://blog.regehr.org/archives/213)
 </style>
 
 <!-- About a year ago, the Linux kernel started using a special GCC flag to tell the compiler to avoid optimizing away useless null-pointer checks. The code that caused developers to add this flag looks like this  -->
+
+---
+layout: statement
+---
+
+# A foundational goal of Rust🦀 is to ensure that your programs never have <br> <span color="orange">undefined behavior☠️</span>
+
+<br>
+
+<v-click>
+About 70% of reported security vulnerabilities in low-level systems are caused by memory corruption, which is one form of undefined behavior.
+</v-click>
+
+---
+
+# A secondary goal of Rust🦀 is to prevent undefined behavior at <span color="green">compile-time</span> instead of <span color="yellow">run-time</span>.
+
+<v-clicks>
+
+* Avoiding the bugs in production, improving the <span color="green">reliability</span> of your software.
+* Fewer runtime checks for those bugs, improving the <span color="green">performance</span> of your software.
+
+</v-clicks>
+
+<v-click>
+
+## We need to understand ownership in terms of the undefined behaviors it prevents.
+Why?
+
+</v-click>
+
+<v-click>
+
+# Safety == Absence of Undefined Behavior☠️
+
+</v-click>
+
+---
+layout: section
+---
+
+# Rust🦀 Memory Model
+
+---
+
+# Variables Live in the Stack
+
+```rust{all|2|3|7-9|8|all}
+fn main() {
+    let n = 5;
+    let y = plus_one(n);
+    println!("The value of y is: {y}");
+}
+
+fn plus_one(x: i32) -> i32 {
+    x + 1
+}
+```
