@@ -34,6 +34,9 @@ jobs:
       - name: Build
         run: nr build --base /${{github.event.repository.name}}/
 
+      - name: Copy Images
+        run: cp -r img dist/img
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
