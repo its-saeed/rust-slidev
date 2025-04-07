@@ -5,12 +5,12 @@ theme: default
 # like them? see https://unsplash.com/collections/94734566/slidev
 background: https://cover.sli.dev
 # some information about your slides (markdown enabled)
-title: Welcome to Slidev
+title: Rust Programming
 info: |
-  ## Slidev Starter Template
-  Presentation slides for developers.
+  ## Rust Programming
+  Start programming with Rust
 
-  Learn more at [Sli.dev](https://sli.dev)
+  Learn more at [Rust Book](https://rust-book.cs.brown.edu/)
 # apply unocss classes to the current slide
 class: text-center
 # https://sli.dev/features/drawing
@@ -330,3 +330,418 @@ fn plus_one(x: i32) -> i32 {
     x + 1
 }
 ```
+
+<div class="image-row">
+  <img v-click="['1', '3']" src="/img/4-understanding-ownership/4-1-what-is-ownership/1-1.png" alt="Image 1">
+  <img v-click="['3', '5']" src="/img/4-understanding-ownership/4-1-what-is-ownership/1-2.png" alt="Image 2">
+  <img v-click="5" src="/img/4-understanding-ownership/4-1-what-is-ownership/1-3.png" alt="Image 3">
+</div>
+
+<style>
+
+.image-row {
+  display: flex;
+  justify-content: center;
+  align-items: end;
+  gap: 50px; /* Space between images */
+}
+
+.image-row img {
+  width: 100px; /* Adjust the size of images */
+  height: auto;
+  border-radius: 10px; /* Optional: Rounded corners */
+}
+
+</style>
+
+
+---
+
+# What is Stack?
+
+- A linear data structure
+- Last In First Out
+
+<div class="image-row">
+  <img src="/img/4-understanding-ownership/4-1-what-is-ownership/stack.png" alt="stack">
+</div>
+
+<style>
+
+.image-row {
+  display: flex;
+  justify-content: center;
+  align-items: end;
+  gap: 50px; /* Space between images */
+}
+
+.image-row img {
+  height: auto;
+  border-radius: 10px; /* Optional: Rounded corners */
+}
+
+</style>
+
+--- 
+
+# What is Call Stack?
+
+<v-clicks>
+
+- A stack data structure that stores information about the active subroutines of a computer program.
+- Each time a function is called, a new block is created on the top of the stack.
+- When the function exits, the block is removed from the stack.
+- The call stack is typically used for storing local variables, function parameters, and return addresses.
+- The call stack is a limited resource, and if it grows too large it can lead to a stack overflow.
+  - Typically around 8 MB on a 64-bit systems.
+- The call stack is managed by the operating system and the programming language runtime.
+
+</v-clicks>
+
+<img src="/img/4-understanding-ownership/4-1-what-is-ownership/call-stack.png" alt="stack">
+
+--- 
+
+# What is Call Stack?
+
+<v-clicks>
+
+- Arguments to the called functions are pushed reversely. 
+- Then return address to caller is pushed
+- The callers stack anchor point (in EBP register) is pushed
+- Then local variables of the callee are pushed
+
+</v-clicks>
+
+<img style="width: 400px; display: block; margin: 0 auto;" src="/img/4-understanding-ownership/4-1-what-is-ownership/call-stack-contents.png" alt="stack">
+
+<!-- [ebp - 4]  (1st local variable)
+[ebp]      (old ebp value)
+[ebp + 4]  (return address)
+[ebp + 8]  (1st argument)
+[ebp + 12] (2nd argument)
+[ebp + 16] (3rd function argument)  -->
+
+---
+layout: statement
+---
+
+## Recap: 🦀Variables are stored in the stack.
+
+---
+
+# Boxes live in the Heap
+
+Copying data can take up a lot of memory:
+
+```rust{all|1|2}
+let a = [0; 1_000_000];
+let b = a;
+```
+
+<div class="image-row">
+  <img v-click="['1', '2']" src="/img/4-understanding-ownership/4-1-what-is-ownership/2-1.png" alt="Image 1">
+  <img v-click="2" src="/img/4-understanding-ownership/4-1-what-is-ownership/2-2.png" alt="Image 3">
+</div>
+
+<v-click>
+
+⚠️Copying `a` into `b` causes the main frame to contain 2 million elements.
+
+</v-click>
+
+<v-clicks>
+
+- To transfer access to data without copying it, Rust uses pointers.
+  - A pointer is a value that describes a location in memory. 
+- The value that a pointer points-to is called its pointee.
+- One common way to make a pointer is to allocate memory in the heap.
+- The heap is a separate region of memory where data can live indefinitely.
+- 🦀Rust provides a construct called `Box` for putting data on the heap.
+
+</v-clicks>
+
+<style>
+
+.image-row {
+  display: flex;
+  justify-content: center;
+  align-items: end;
+  gap: 50px; /* Space between images */
+}
+
+.image-row img {
+  width: 200px; /* Adjust the size of images */
+  height: auto;
+  border-radius: 10px; /* Optional: Rounded corners */
+}
+
+</style>
+
+---
+
+# Boxes live in the Heap
+
+```rust{all|1|2}
+let a = Box::new([0; 1_000_000]);
+let b = a;
+
+```
+
+<div class="image-row">
+  <img style="width: 400px; display: block; margin: 0 auto;" v-click="['1', '2']" src="/img/4-understanding-ownership/4-1-what-is-ownership/3-1.png" alt="Image 1">
+  <img style="width: 400px; display: block; margin: 0 auto;" v-click="2" src="/img/4-understanding-ownership/4-1-what-is-ownership/3-2.png" alt="Image 3">
+</div>
+
+<v-clicks>
+
+- There is only ever a single array at a time.
+- The statement let `b = a` copies the pointer from `a` into `b`, but the pointed-to data is not copied.
+- `a` is now grayed out because it has been moved. Will be discussed later.
+
+</v-clicks>
+
+---
+
+# Rust Does Not Permit Manual Memory Management
+Memory management is the process of allocating memory and deallocating memory. 
+
+<v-clicks depth="2">
+
+* Stack frames are automatically managed by Rust.
+  * When a function is called, Rust allocates a stack frame for the called function.
+  * When the call ends, Rust deallocates the stack frame.
+
+* Memory deallocation on heap is different
+  * C/C++ use manual memory management, Can easily leads to bugs
+  * Java/C# use garbage collection, Runtime routines to cleanup. Poor performance
+  * Rust uses a different approach
+
+</v-clicks>
+
+<br>
+
+<v-click>
+
+### 🦀Rust does not allow programs to manually deallocate memory!
+
+</v-click>
+
+---
+
+# Rust Does Not Permit Manual Memory Management
+Imagine that Rust had a free() function that frees a heap allocation
+
+```rust{all|1|2|3}
+let b = Box::new([0; 100]);
+free(b);
+assert!(b[0] == 0);
+```
+
+<div class="image-row">
+  <img style="width:500px" v-click="['1', '2']" src="/img/4-understanding-ownership/4-1-what-is-ownership/4-1.png" alt="Image 1">
+  <img v-click="['2', '3']" src="/img/4-understanding-ownership/4-1-what-is-ownership/4-2.png" alt="Image 2">
+  <img v-click="3" src="/img/4-understanding-ownership/4-1-what-is-ownership/4-3.png" alt="Image 3">
+</div>
+
+<br>
+
+<v-click at="3">
+
+## ☠️ <span color="red">Undefined behavior!</span> Pointer used after its pointee is freed.
+
+</v-click>
+
+<style>
+
+.image-row {
+  display: flex;
+  justify-content: center;
+  align-items: end;
+  gap: 50px; /* Space between images */
+}
+
+.image-row img {
+  width: 100px; /* Adjust the size of images */
+  height: auto;
+  border-radius: 10px; /* Optional: Rounded corners */
+}
+
+</style>
+
+<!-- The undefined behavior happens when we try to use the pointer by reading b[0]. That would attempt to access invalid memory, which could cause the program to crash. Or worse, it could not crash and return arbitrary data. Therefore this program is unsafe. -->
+
+---
+
+# A Box’s Owner Manages Deallocation
+Box deallocation principle (almost correct): If a variable is bound to a box, when Rust deallocates the variable’s frame, then Rust deallocates the box’s heap memory.
+
+```rust{all|2|3|6-8|4}
+fn main() {
+    let a_num = 4;
+    make_and_drop();
+}
+
+fn make_and_drop() {
+    let a_box = Box::new(5);
+}
+```
+<div class="image-row">
+  <img v-click="['1', '3']" src="/img/4-understanding-ownership/4-1-what-is-ownership/5-1.png" alt="Image 1">
+  <img style="width:200px" v-click="['3', '4']" src="/img/4-understanding-ownership/4-1-what-is-ownership/5-2.png" alt="Image 2">
+  <img v-click="4" src="/img/4-understanding-ownership/4-1-what-is-ownership/5-3.png" alt="Image 3">
+</div>
+
+<v-click>
+
+The box’s heap memory has been successfully managed. But what if we abused this system? 🤔
+
+</v-click>
+
+<style>
+
+.image-row {
+  display: flex;
+  justify-content: center;
+  align-items: end;
+  gap: 50px; /* Space between images */
+}
+
+.image-row img {
+  width: 100px; /* Adjust the size of images */
+  height: auto;
+  border-radius: 10px; /* Optional: Rounded corners */
+}
+
+</style>
+
+---
+
+```rust
+let a = Box::new([0; 1_000_000]);
+let b = a;
+```
+
+<v-clicks>
+
+- The boxed array has now been bound to both `a` and `b`. 
+- By our “almost correct” principle, Rust would try to free the box’s heap memory twice on behalf of both variables. 
+
+</v-clicks>
+
+<br>
+
+<v-click>
+
+### That’s undefined behavior too!☠️
+
+</v-click>
+
+<v-click>
+To avoid this situation, we finally arrive at ownership.
+</v-click>
+
+<v-clicks>
+
+- When a is bound to `Box::new([0; 1_000_000])`, we say that `a` owns the box. 
+- The statement let `b = a` moves ownership of the box from `a` to `b`
+
+</v-clicks>
+
+<v-click>
+
+## 🦀Box deallocation principle (fully correct): If a variable owns a box, when Rust deallocates the variable’s frame, then Rust deallocates the box’s heap memory.
+
+</v-click>
+
+---
+layout: statement
+---
+
+# 🦀Box deallocation principle (fully correct): If a variable owns a box, when Rust deallocates the variable’s frame, then Rust deallocates the box’s heap memory.
+
+
+---
+
+# Collections Use Boxes
+
+<v-clicks>
+
+- Boxes are used by Rust data structures like `Vec`, `String`, and `HashMap`
+- These data structures are called collections.
+- To hold a variable number of elements.
+
+</v-clicks>
+
+<v-click>
+
+```rust
+fn main() {
+    let first = String::from("Ferris");
+    let full = add_suffix(first);
+    println!("{full}");
+}
+
+fn add_suffix(mut name: String) -> String {
+    name.push_str(" Jr.");
+    name
+}
+```
+</v-click>
+<!-- TODO: Add stack -->
+
+---
+
+# Variables Cannot Be Used After Being Moved
+
+```rust{all|3|4|all}
+fn main() {
+    let first = String::from("Ferris");
+    let full = add_suffix(first);
+    println!("{full}, originally {first}"); // first is now used here
+}
+
+fn add_suffix(mut name: String) -> String {
+    name.push_str(" Jr.");
+    name
+}
+```
+<v-clicks at="1">
+
+- first points to deallocated memory after calling `add_suffix`
+- Reading first in `println!` would therefore be a violation of memory safety (undefined behavior)
+- It’s not a problem that `first` points to deallocated memory. It’s a problem that we tried to use `first` after it became invalid.
+- This is not an issue for data types that implements `Copy` trait like `i32`
+
+</v-clicks>
+<!-- TODO: Add stack -->
+
+---
+layout: statement
+---
+
+# 🦀Moved heap data principle: if `a` variable `x` moves ownership of heap data to another variable `y`, then `x` cannot be used after the move.
+
+<v-click>
+Moving ownership of heap data avoids undefined behavior from reading deallocated memory.
+</v-click>
+
+---
+
+## Cloning Avoids Moves
+One way to avoid moving data is to clone it using the `.clone()` method.
+
+```rust{all|3}
+fn main() {
+    let first = String::from("Ferris");
+    let first_clone = first.clone();
+    let full = add_suffix(first_clone);
+    println!("{full}, originally {first}");
+}
+
+fn add_suffix(mut name: String) -> String {
+    name.push_str(" Jr.");
+    name
+}
+```
+<!-- TODO: Add stack -->
