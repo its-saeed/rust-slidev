@@ -37,3 +37,6 @@ src: ./pages/4-understanding-ownership/1-what-is-ownership.md
 src: pages/4-understanding-ownership/2-references-and-borrowing.md
 ---
 ---
+src: pages/4-understanding-ownership/4-the-slice-type.md
+---
+---
