@@ -43,3 +43,6 @@ src: pages/4-understanding-ownership/4-the-slice-type.md
 src: pages/5-using-structs/1-defining-and-instantiating-structs.md
 ---
 ---
+src: pages/5-using-structs/3-method-syntax.md
+---
+---

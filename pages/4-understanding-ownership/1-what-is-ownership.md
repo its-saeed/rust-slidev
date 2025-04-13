@@ -259,8 +259,8 @@ About 70% of reported security vulnerabilities in low-level systems are caused b
 
 <v-clicks>
 
-* Avoiding the bugs in production, improving the <span color="green">reliability</span> of your software.
-* Fewer runtime checks for those bugs, improving the <span color="green">performance</span> of your software.
+* To avoid the bugs in production, improving the <span color="green">reliability</span> of your software.
+* To have fewer runtime checks for those bugs, improving the <span color="green">performance</span> of your software.
 
 </v-clicks>
 
@@ -492,6 +492,17 @@ let b = a;
 </v-clicks>
 
 ---
+layout: section
+---
+ 
+<div color="#787878">
+
+Rust Memory Model
+
+</div>
+
+# Rust Does Not Permit Manual Memory Management
+---
 
 # Rust Does Not Permit Manual Memory Management
 Memory management is the process of allocating memory and deallocating memory. 
@@ -519,8 +530,7 @@ Memory management is the process of allocating memory and deallocating memory.
 
 ---
 
-# Rust Does Not Permit Manual Memory Management
-Imagine that Rust had a free() function that frees a heap allocation
+Imagine that Rust had a `free()` function that frees a heap allocation: 
 
 ```rust{all|1|2|3}
 let b = Box::new([0; 100]);
@@ -681,6 +691,18 @@ fn add_suffix(mut name: String) -> String {
 <!-- TODO: Add stack -->
 
 ---
+layout: section
+---
+ 
+<div color="#787878">
+
+Rust Memory Model
+
+</div>
+
+# Variables Cannot Be Used After Being Moved
+
+---
 
 # Variables Cannot Be Used After Being Moved
 
@@ -698,7 +720,7 @@ fn add_suffix(mut name: String) -> String {
 ```
 <v-clicks at="1">
 
-- first points to deallocated memory after calling `add_suffix`
+- `first` points to deallocated memory after calling `add_suffix`
 - Reading first in `println!` would therefore be a violation of memory safety (undefined behavior)
 - It’s not a problem that `first` points to deallocated memory. It’s a problem that we tried to use `first` after it became invalid.
 - This is not an issue for data types that implements `Copy` trait like `i32`
@@ -710,7 +732,7 @@ fn add_suffix(mut name: String) -> String {
 layout: statement
 ---
 
-# 🦀Moved heap data principle: if `a` variable `x` moves ownership of heap data to another variable `y`, then `x` cannot be used after the move.
+# 🦀Moved heap data principle: if a variable `x` moves ownership of heap data to another variable `y`, then `x` cannot be used after the move.
 
 <v-click>
 Moving ownership of heap data avoids undefined behavior from reading deallocated memory.

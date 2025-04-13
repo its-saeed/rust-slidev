@@ -63,6 +63,7 @@ fn greet(g1: &String, g2: &String) { // note the ampersands
     println!("{} {}!", g1, g2);
 }
 ```
+
 ℹ️Because `g1` did not own “Hello”, Rust did not deallocate “Hello” on behalf of `g1`. Consistent with Box Deallocation Principle.
 <!-- TODO: Add stack diagram -->
 
