@@ -53,3 +53,6 @@ layout: section
 src: pages/6-enums-and-pattern-matching/1-defining-an-enum.md
 ---
 ---
+src: pages/6-enums-and-pattern-matching/2-the-match-control-flow-construct.md
+---
+---
