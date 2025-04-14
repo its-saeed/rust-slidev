@@ -46,3 +46,10 @@ src: pages/5-using-structs/1-defining-and-instantiating-structs.md
 src: pages/5-using-structs/3-method-syntax.md
 ---
 ---
+layout: section
+---
+# 🦀Enums and Pattern Matching
+---
+src: pages/6-enums-and-pattern-matching/1-defining-an-enum.md
+---
+---
